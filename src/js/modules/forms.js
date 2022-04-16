@@ -1,8 +1,9 @@
 import checkNumInputs from "./checkNumInputs";
 
-const forms = () => {
+const forms = (state) => {
     const form = document.querySelectorAll('form'),
-          inputs = document.querySelectorAll('input');
+          inputs = document.querySelectorAll('input'),
+          modal = document.querySelector('.popup_calc_end');
 
     // ниже у нас валидация input чтобы были введены только числа.
 
@@ -43,6 +44,11 @@ const forms = () => {
             item.appendChild(statusMessage);                           // мы помещаем наш новый блок в конец нашей формы
 
             const formData = new FormData(item);                       // мы помещаем новый конструктор new FormData и во внутрь мы помещаем ту форму из которой мы хотим вытащить все данные
+            if (item.getAttribute('data-calc') === 'end') {            // если наш дата атрибут будет равен энд, то
+                for (let key in state) {
+                    formData.append(key, state[key]);                   // append принимает два аргумента, первый это значение key а после этого ключ state[key]
+                }
+            }
 
             postData('assets/server.php', formData)                    // первым передаем файл сервера, а вторым наши данные
                 .then(res => {                              // так как здесь возвращается промис мы прописываем цепочку, то есть говорим then, нам в этом then попадает какой-то результат который прислал нам сервер причем уже в текстовом формате из за return await res.text(). Говорим что возвращается какой то res
@@ -51,11 +57,19 @@ const forms = () => {
                 })
                 .catch(() => statusMessage.textContent = message.failure)      // таким образом мы обрабатываем ошибку при помощи .catch
                 .finally(() => {
-                    clearInputs() 
+                    clearInputs(); 
                     setTimeout(() => {
                         statusMessage.remove();                         // мы удаляем statusMessage со страницы
                     }, 5000);
                 });
+
+            setTimeout(() => {
+                modal.style.display = 'none';
+            }, 2000);
+            
+            for (let key in state) {
+                delete state[key];
+            }
         });
     });
 };

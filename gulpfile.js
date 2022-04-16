@@ -4,8 +4,8 @@ const gulp = require("gulp");                           // импортируе�
 const webpack = require("webpack-stream");
 const browsersync = require("browser-sync");
 
-// const dist = "./dist/";                                // этот тот путь куда мы будем все компилировать
-const dist = 'C:/OpenServer/domains/test';
+const dist = "./dist/";                                // этот тот путь куда мы будем все компилировать
+// const dist = 'C:/OpenServer/domains/test';
 
 gulp.task("copy-html", () => {                        // служит для того чтобы мы могли отслеживать те изменения которые вносим в html файл
     return gulp.src("./src/index.html")

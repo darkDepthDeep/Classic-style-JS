@@ -1,4 +1,4 @@
-const modals = () => {
+const modals = (state) => {
 
     // modal 
     
@@ -6,7 +6,8 @@ const modals = () => {
         const trigger = document.querySelectorAll(triggerSelector),
               modal = document.querySelector(modalSelector),
               close = document.querySelector(closeSelector),
-              windows = document.querySelectorAll('[data-modal]');
+              windows = document.querySelectorAll('[data-modal]'),
+              scroll = calcScroll();
 
         trigger.forEach(item => {                           // метод перебора forEach берем потому что мы получаем массив в const trigger = document.querySelectorAll(triggerSelector)
             item.addEventListener('click', (e) => {       // так как мы можем нажать на ссылку и чтобы она не открывалась в новом окне нам надо отменить стандартное поведение поэтому аргументом будет e(even)
@@ -14,12 +15,25 @@ const modals = () => {
                     e.preventDefault();
                 }
 
+                if (modal.classList.contains('popup_calc_profile')) {
+					if (!state.form || !state.width || !state.height) {
+						item.removeEventListener();
+					}
+				}
+
+				if (modal.classList.contains('popup_calc_end')) {
+					if (!state.type || !state.profile) {
+						item.removeEventListener();
+					}
+				}
+
                 windows.forEach(item => {                   // здесь будут закрываться все модальные окна
                     item.style.display = 'none';
                 });
     
                 modal.style.display = 'block';                // так мы показываем модальное окно на странице
                 document.body.style.overflow = 'hidden';      // мы скрываем прокрутку окна браузера когда у нас открыто модальное окно
+                document.body.style.marginRight = `${scroll}px`;    // так мы нашему body marginRight устанавливаем равной ширине прокрутки
                 // document.body.classList.add('modal-open');          // при подключенной библиотеке бутсрап href="assets/css/bootstrap.css мы можем заменить строку выше на открытие и закрытие модальных окон при помощи классов вот таким способом
             });
         });
@@ -30,6 +44,7 @@ const modals = () => {
             });
             modal.style.display = 'none';                // так мы скрываем модальное окно на странице
             document.body.style.overflow = '';           // мы теперь показываем прокрутку окна браузера когда у нас закрыто модальное окно
+            document.body.style.marginRight = `0px`;
             // document.body.classList.remove('modal-open');           // при подключенной библиотеке бутсрап href="assets/css/bootstrap.css мы можем заменить строку выше на открытие и закрытие модальных окон при помощи классов вот таким способом
         });
 
@@ -37,6 +52,7 @@ const modals = () => {
             if (e.target === modal && closeClickOverlay) {                     // если e.target то есть тот элемент куда я кликнул будет строго равен тому элементу собственно на подложку модального окна и параметр если параметр который мы передаем будет true то в таком случае у нас выполниться функционал который находится ниже. А если у нас одно из условий не выполниться то и ниже функционал то же не будет выполняться
                 modal.style.display = 'none';                // так мы скрываем модальное окно на странице
                 document.body.style.overflow = '';           // мы теперь показываем прокрутку окна браузера когда у нас закрыто модальное окно
+                document.body.style.marginRight = `0px`;
                 // document.body.classList.remove('modal-open');           // при подключенной библиотеке бутсрап href="assets/css/bootstrap.css мы можем заменить строку выше на открытие и закрытие модальных окон при помощи классов вот таким способом
             }
         });
@@ -47,6 +63,22 @@ const modals = () => {
             document.querySelector(selector).style.display = 'block';    // мы по через определенное время нашему селектору задаем display = 'block'
             document.body.style.overflow = 'hidden';
         }, time);
+    }
+
+    function calcScroll() {
+        let div = document.createElement('div');
+
+        div.style.width = '50px';
+        div.style.height = '50px';
+        div.style.overflowY = 'scroll';
+        div.style.visibility = 'hidden';
+
+        document.body.appendChild(div);     // помещаем наш вновь созданный блок в body
+
+        let scrollWidth = div.offsetWidth - div.clientWidth;           // div.offsetWidth это полная ширина вместе с бордерами, div.clientWidth - это включает в себя только паддинги и самый главный контент который есть внутри (и главное что сюда не включается прокрутка)
+        div.remove();           // после того как мы узнали ширину нашей прокрутки мы можем удалить этот блок, он нам уже не нужен
+
+        return scrollWidth;     // мы будем возвращать полученное значение scrollWidth
     }
 
     bindModal('.popup_engineer_btn', '.popup_engineer', '.popup_engineer .popup_close');
